@@ -95,6 +95,11 @@ func _show_tab(key:String):
 			pages[k].set_process_input(true)
 		else:
 			pages[k].set_process_input(false)
+	if key == "maps" and pages.has("maps") and pages["maps"].has_method("on_shown"):
+		pages["maps"].on_shown()
+
+func show_maps():
+	_on_tab_pressed("maps")
 
 func _on_conn(web_ok, _db_ok, dot:Control):
 	var c = RhythianUI.C_ACCENT2 if web_ok else Color("ef4444")

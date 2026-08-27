@@ -129,8 +129,16 @@ func _on_refresh():
 	Rhythian.fetch_maps()
 
 func _on_auth_changed():
-	if built:
-		rebuild()
+	if not built:
+		return
+	rebuild()
+	if Rhythian.logged_in:
+		Rhythian.fetch_maps()
+
+func on_shown():
+	if built and Rhythian.logged_in:
+		if typeof(Rhythian.maps_cache) != TYPE_ARRAY or Rhythian.maps_cache.size() == 0:
+			Rhythian.fetch_maps()
 
 func _on_maps_updated(success:bool, message:String):
 	if not success:

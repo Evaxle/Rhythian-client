@@ -194,12 +194,28 @@ func _rebuild_account():
 		account_inner.add_child(row)
 		account_inner.add_child(RhythianUI.hline())
 		_render_rank_block(account_inner)
+		account_inner.add_child(RhythianUI.hline())
+		_add_check_maps_button()
 	else:
 		account_inner.add_child(RhythianUI.label("Sign in to connect your Rhythians account.", 15, RhythianUI.C_MUTED))
 		account_inner.add_child(RhythianUI.label("Once signed in, your scores on downloaded Rhythian maps upload to the site, and you can see your rank progress here.", 14, RhythianUI.C_MUTED))
 		var login = RhythianUI.accent_button("Login with Rhythians")
 		login.connect("pressed", self, "_on_login_pressed")
 		account_inner.add_child(login)
+		account_inner.add_child(RhythianUI.hline())
+		_add_check_maps_button()
+
+func _add_check_maps_button():
+	var b = RhythianUI.ghost_button("Check all maps")
+	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	b.connect("pressed", self, "_on_check_all_maps")
+	account_inner.add_child(b)
+
+func _on_check_all_maps():
+	Rhythian.fetch_maps()
+	var home = get_parent()
+	if home != null and home.has_method("show_maps"):
+		home.show_maps()
 
 func _render_rank_block(parent:VBoxContainer):
 	var rhp = int(Rhythian.profile.get("rhp", 0))

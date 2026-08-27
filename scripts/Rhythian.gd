@@ -167,10 +167,16 @@ func _api_request(method:int, path:String, body=null, use_auth:bool=true, timeou
 
 func check_connection():
 	var res = yield(_api_request(HTTPClient.METHOD_GET, "/api/health", null, false), "completed")
-	var web_ok = res.get("result", 1) == HTTPRequest.RESULT_SUCCESS
+	var web_ok = res.get("ok", false)
 	var db_ok = false
-	if web_ok and typeof(res.get("json")) == TYPE_DICTIONARY:
-		db_ok = str(res["json"].get("database","")).to_lower() == "connected"
+	var j = res.get("json", null)
+	if web_ok and typeof(j) == TYPE_DICTIONARY:
+		var dbv = str(j.get("database", "")).to_lower()
+		db_ok = dbv == "connected" or dbv == "ok" or dbv == "up" or dbv == "true"
+		# A health payload that explicitly reports ok=false means the site is unhealthy.
+		if j.has("ok") and not bool(j.get("ok", false)):
+			web_ok = false
+			db_ok = false
 	website_ok = web_ok
 	database_ok = db_ok
 	emit_signal("connection_checked", website_ok, database_ok)
@@ -181,15 +187,23 @@ func start_login():
 	if device_code != "" and OS.get_unix_time() < device_expiry:
 		return
 	var res = yield(_api_request(HTTPClient.METHOD_POST, "/api/rhythkit/device/start", {}, false), "completed")
-	if not res.get("ok", false) or typeof(res.get("json")) != TYPE_DICTIONARY or not res["json"].get("ok", false):
+	var j = res.get("json", null)
+	if not res.get("ok", false) or typeof(j) != TYPE_DICTIONARY:
 		var msg = "Could not contact Rhythians"
-		if typeof(res.get("json")) == TYPE_DICTIONARY:
-			msg = str(res["json"].get("error", msg))
+		if typeof(j) == TYPE_DICTIONARY:
+			msg = str(j.get("error", msg))
 		emit_signal("login_finished", false, msg)
 		return
-	device_code = str(res["json"].get("deviceCode",""))
-	device_expiry = OS.get_unix_time() + int(res["json"].get("expiresIn", 300))
-	emit_signal("login_started", str(res["json"].get("userCode","")), str(res["json"].get("verificationUrl","")))
+	# Accept both camelCase and snake_case device-flow fields.
+	device_code = str(j.get("deviceCode", j.get("device_code", "")))
+	device_expiry = OS.get_unix_time() + int(j.get("expiresIn", j.get("expires_in", 300)))
+	var user_code = str(j.get("userCode", j.get("user_code", "")))
+	var verify_url = str(j.get("verificationUrl", j.get("verification_uri", j.get("verificationUrlComplete", ""))))
+	if device_code == "" or user_code == "":
+		device_code = ""
+		emit_signal("login_finished", false, "The Rhythians server returned an invalid login response")
+		return
+	emit_signal("login_started", user_code, verify_url)
 
 func poll_login():
 	if device_code == "": return
@@ -201,14 +215,19 @@ func poll_login():
 	if not res.get("ok", false) or typeof(res.get("json")) != TYPE_DICTIONARY:
 		return # transient failure, keep polling
 	var j = res["json"]
-	if j.get("pending", false):
+	if bool(j.get("pending", false)):
 		return
+	var err = str(j.get("error", ""))
+	if err == "authorization_pending" or err == "slow_down":
+		return # still waiting
 	device_code = ""
-	if j.get("ok", false) and j.get("authorized", false):
-		token = str(j.get("token",""))
-		installation_id = str(j.get("installationId",""))
-		user_id = str(j.get("userId",""))
-		username = str(j.get("username",""))
+	var authorized = bool(j.get("authorized", false))
+	var new_token = str(j.get("token", j.get("access_token", "")))
+	if authorized and new_token != "":
+		token = new_token
+		installation_id = str(j.get("installationId", j.get("installation_id", "")))
+		user_id = str(j.get("userId", j.get("user_id", "")))
+		username = str(j.get("username", ""))
 		logged_in = token != ""
 		_save_auth()
 		emit_signal("login_finished", true, "")
@@ -217,7 +236,7 @@ func poll_login():
 		fetch_scores()
 		_flush_score_queue()
 	else:
-		emit_signal("login_finished", false, str(j.get("error", "Login failed")))
+		emit_signal("login_finished", false, str(j.get("error", j.get("message", "Login failed"))))
 
 func cancel_login():
 	device_code = ""
@@ -230,10 +249,12 @@ func refresh_status():
 	if res.get("code", 0) == 401:
 		logout()
 		return
-	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY and res["json"].get("ok", false):
+	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY:
+		if res["json"].has("ok") and not bool(res["json"].get("ok", false)):
+			return
 		username = str(res["json"].get("username", username))
-		user_id = str(res["json"].get("userId", user_id))
-		installation_id = str(res["json"].get("installationId", installation_id))
+		user_id = str(res["json"].get("userId", res["json"].get("user_id", user_id)))
+		installation_id = str(res["json"].get("installationId", res["json"].get("installation_id", installation_id)))
 		_save_auth()
 		emit_signal("auth_changed")
 
@@ -245,11 +266,16 @@ func fetch_profile():
 	if res.get("code", 0) == 401:
 		logout()
 		return
-	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY and res["json"].get("ok", false):
-		var user = res["json"].get("user", {})
-		if typeof(user) == TYPE_DICTIONARY:
-			profile = user
-			if profile.has("username"): username = str(profile["username"])
+	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY:
+		var j = res["json"]
+		if j.has("ok") and not bool(j.get("ok", false)):
+			emit_signal("profile_updated")
+			return
+		var user = j.get("user", j.get("profile", j.get("data", null)))
+		if typeof(user) != TYPE_DICTIONARY:
+			user = j
+		profile = user
+		if profile.has("username"): username = str(profile["username"])
 	emit_signal("profile_updated")
 
 func fetch_scores():
@@ -261,13 +287,25 @@ func fetch_scores():
 	if res.get("code", 0) == 401:
 		logout()
 		return
-	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY and res["json"].get("ok", false):
-		var list = res["json"].get("scores", [])
-		scores_cache = list if typeof(list) == TYPE_ARRAY else []
+	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY:
+		var j = res["json"]
+		if j.has("ok") and not bool(j.get("ok", false)):
+			scores_error = str(j.get("error", "Could not load scores"))
+			emit_signal("scores_updated", false, scores_error)
+			return
+		var list = j.get("scores", j.get("data", j.get("items", null)))
+		if typeof(list) == TYPE_ARRAY:
+			scores_cache = list
+		elif typeof(j) == TYPE_ARRAY:
+			scores_cache = j
+		else:
+			scores_cache = []
 		scores_error = ""
 		emit_signal("scores_updated", true, "")
 	else:
 		scores_error = "Could not load scores"
+		if typeof(res.get("json")) == TYPE_DICTIONARY and str(res["json"].get("error", "")) != "":
+			scores_error = str(res["json"].get("error"))
 		if res.get("code", 0) == 404:
 			scores_error = "The score list is not available on the Rhythians website yet"
 		emit_signal("scores_updated", false, scores_error)
@@ -282,13 +320,25 @@ func fetch_maps():
 	if res.get("code", 0) == 401:
 		logout()
 		return
-	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY and res["json"].get("ok", false):
-		var list = res["json"].get("maps", [])
-		maps_cache = list if typeof(list) == TYPE_ARRAY else []
+	if res.get("ok", false) and typeof(res.get("json")) == TYPE_DICTIONARY:
+		var j = res["json"]
+		if j.has("ok") and not bool(j.get("ok", false)):
+			maps_error = str(j.get("error", "Could not load the map list"))
+			emit_signal("maps_updated", false, maps_error)
+			return
+		var list = j.get("maps", j.get("data", j.get("items", null)))
+		if typeof(list) == TYPE_ARRAY:
+			maps_cache = list
+		elif typeof(j) == TYPE_ARRAY:
+			maps_cache = j
+		else:
+			maps_cache = []
 		maps_error = ""
 		emit_signal("maps_updated", true, "")
 	else:
 		maps_error = "Could not load the map list"
+		if typeof(res.get("json")) == TYPE_DICTIONARY and str(res["json"].get("error", "")) != "":
+			maps_error = str(res["json"].get("error"))
 		if res.get("code", 0) == 404:
 			maps_error = "The map list is not available on the Rhythians website yet"
 		emit_signal("maps_updated", false, maps_error)
