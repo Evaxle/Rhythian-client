@@ -1,0 +1,44 @@
+﻿
+Name                     Mode  
+----                     ----  
+.github                  d-----
+resources                d-----
+rhythians_desktop        d-----
+rhythkit-ssp             d-----
+scripts                  d-----
+src                      d-----
+src-tauri                d-----
+index.html               -a----
+LICENSE                  -a----
+NOTICE                   -a----
+package.json             -a----
+README.md                -a----
+requirements.txt         -a----
+run.py                   -a----
+TERMS_OF_USE.md          -a----
+tsconfig.json            -a----
+vite.config.ts           -a----
+workflows                d-----
+RhythKit                 d-----
+app.py                   -a----
+server.py                -a----
+__init__.py              -a----
+__main__.py              -a----
+game-integration         d-----
+RhythKit.SSP.Agent       d-----
+build.sh                 -a----
+README.md                -a----
+build-windows-manjaro.sh -a----
+App.tsx                  -a----
+desktop.ts               -a----
+main.tsx                 -a----
+rhythkit.ts              -a----
+styles.css               -a----
+capabilities             d-----
+src                      d-----
+windows                  d-----
+build.rs                 -a----
+Cargo.toml               -a----
+tauri.conf.json          -a----
+
+
