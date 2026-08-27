@@ -1,0 +1,319 @@
+
+Godot Engine v3.6.2.stable.official.3cd3caab6 - https://godotengine.org
+VisualServerWrapMT: Creating render thread
+VisualServerWrapMT: Starting render thread
+Using GLES3 video driver
+OpenGL ES 3.0 Renderer: NVIDIA GeForce GTX 1070/PCIe/SSE2
+Async. shader compilation: OFF
+OpenGL ES 2D Batching: ON
+Batching Options:
+	max_join_item_commands 16
+	colored_vertex_format_threshold 0.25
+	batch_buffer_effective_size 16384
+	light_scissor_area_threshold 1
+	item_reordering_lookahead 4
+	light_max_join_items 32
+	single_rect_fallback False
+	debug_flash False
+	diagnose_frame False
+VisualServerWrapMT: Finished render thread
+WASAPI: wFormatTag = 65534
+WASAPI: nChannels = 2
+WASAPI: nSamplesPerSec = 48000
+WASAPI: nAvgBytesPerSec = 384000
+WASAPI: nBlockAlign = 8
+WASAPI: wBitsPerSample = 32
+WASAPI: cbSize = 22
+WASAPI: detected 2 channels
+WASAPI: audio buffer frames: 1962 calculated latency: 44ms
+ 
+Loading resource: res://localization/localization.csv
+Loading resource: res://localization/localization.en.translation
+Loading resource: res://localization/localization.fr.translation
+Loading resource: res://localization/localization.ja.translation
+Loading resource: res://localization/localization.pl.translation
+Loading resource: res://localization/localization.es.translation
+Loading resource: res://localization/localization.it.translation
+Loading resource: res://addons/godot-openvr/godot_openvr.gdnlib
+Construct gdnative interface
+
+Loading resource: res://default_bus_layout.tres
+CORE API HASH: 1922975809339680405
+EDITOR API HASH: 1307865197627434137
+Loading resource: res://default_env.tres
+Loading resource: res://scripts/Globals.gd
+Loading resource: res://scripts/content/resources/AudioLoader.gd
+Loading resource: res://scripts/content/resources/ImageLoader.gd
+Loading resource: res://scripts/ui/ConfirmationPrompt2D.gd
+Loading resource: res://scripts/ui/StringPrompt2D.gd
+Loading resource: res://scripts/ui/FileSelector.gd
+Loading resource: res://scripts/ui/Notify2D.gd
+Loading resource: res://assets/images/error.jpg
+Loading resource: res://assets/images/error2.jpg
+Loading resource: res://scripts/Online.gd
+Loading resource: res://scripts/content/game/Song.gd
+Loading resource: res://scripts/content/Registry.gd
+Loading resource: res://scripts/content/game/ColorSet.gd
+Loading resource: res://scripts/content/game/BackgroundWorld.gd
+Loading resource: res://scripts/content/game/NoteMesh.gd
+Loading resource: res://scripts/content/game/NoteEffect.gd
+Loading resource: res://scripts/Rhythia.gd
+Loading resource: res://scripts/content/game/Replay.gd
+Loading resource: res://scripts/cursordance/DanceMover.gd
+Loading resource: res://scripts/cursordance/Bouncy.gd
+Loading resource: res://vr/VRPlayer.gd
+Loading resource: res://scripts/Rhythian.gd
+Loading resource: res://scripts/content/resources/ResourceQueue.gd
+Loading resource: res://scripts/cursordance/Dance.gd
+Loading resource: res://scripts/game/SFXManager.gd
+Loading resource: res://addons/discord_game_sdk/discord.gd
+Loading resource: res://addons/discord_game_sdk/discord_core.gdns
+Loading resource: res://addons/discord_game_sdk/discord_sdk.gdnlib
+Loading resource: res://addons/discord_game_sdk/discord_user.gdns
+Loading resource: res://addons/discord_game_sdk/discord_lobby_transaction.gdns
+Loading resource: res://addons/discord_game_sdk/discord_activity_assets.gdns
+Loading resource: res://addons/discord_game_sdk/discord_activity_secrets.gdns
+Loading resource: res://addons/discord_game_sdk/discord_activity_party.gdns
+Loading resource: res://addons/discord_game_sdk/discord_activity_timestamps.gdns
+Loading resource: res://addons/discord_game_sdk/discord_result.gdns
+Loading resource: res://addons/discord_game_sdk/discord_activity.gdns
+Loaded builtin certs
+Loading resource: res://scenes/init.tscn
+Loading resource: res://assets/font/Lato/Lato-Regular.ttf
+Loading resource: res://scripts/ui/menu/VersionNumber.gd
+Loading resource: res://assets/images/branding/icon.png
+Loading resource: res://uitheme.tres
+Loading resource: res://assets/font/Noto_Sans_JP/NotoSansJP-Medium.otf
+Loading resource: res://assets/font/NotoColorEmoji.ttf
+Loading resource: res://scripts/init.gd
+Loading resource: res://assets/font/Lato/Lato-Bold.ttf
+Loading resource: res://LSPatronList.gd
+Loading resource: res://prefabs/menu/confirm.tscn
+Loading resource: res://assets/sfx/new_best.wav
+Loading resource: res://assets/sfx/button-16.wav
+Loading resource: res://prefabs/menu/string.tscn
+Loading resource: res://prefabs/menu/filesel.tscn
+Loading resource: res://addons/native_dialogs/bin/native_dialog_select_folder.gdns
+Loading resource: res://addons/native_dialogs/bin/native_dialogs.gdnlib
+Loading resource: res://addons/native_dialogs/bin/native_dialog_open_file.gdns
+Loading resource: res://addons/native_dialogs/bin/native_dialog_save_file.gdns
+Loading resource: res://prefabs/menu/notification_gui.tscn
+Loading resource: res://assets/font/debug2.tres
+Loading resource: res://assets/font/UbuntuMono/Regular.ttf
+Loading resource: res://assets/worlds/neon_tunnel/space_tunnel.png
+Loading resource: res://assets/worlds/neon_tunnel/neon_tunnel.png
+Loading resource: res://assets/worlds/deep_space/deep_space.png
+Loading resource: res://assets/worlds/void/void.png
+Loading resource: res://assets/worlds/space/rainbow_road.png
+Loading resource: res://assets/worlds/cubic/cubic.png
+Loading resource: res://assets/worlds/classic/classic.png
+Loading resource: res://assets/worlds/custom/custom.png
+Loading resource: res://assets/worlds/baseplate/baseplate.png
+Loading resource: res://assets/worlds/vaporwave/vaporwave.png
+Loading resource: res://assets/worlds/tri_tunnel/cover.png
+(re)load custom colorsets
+-- start recurse --
+[user://colorsets]
+-- end recurse - took 852 usec --
+set 1 took 382 usec
+set 2 took 310 usec
+set 3 took 285 usec
+set 4 took 2,340 usec
+set 5 took 366 usec
+set 6 took 244 usec
+set 7 took 231 usec
+colorsets took 5,578 usec
+loaded ssp_content DLC
+loaded ssp_testcontent DLC
+-- start recurse --
+[user://maps]
+-- end recurse - took 34,443 usec --
+Loaded 429/429 maps from cache of 430
+Took 13,037 usec
+res://assets/songs/built_in_maps.sspmr
+6
+res://test_assets/test_maps.sspmr
+1
+-- start recurse --
+[user://vmaps]
+-- end recurse - took 2,659 usec --
+Cache hit!
+Loading resource: res://assets/sfx/miss.wav
+Loading resource: res://assets/sfx/hit.wav
+Loading resource: res://assets/sfx/fail.wav
+custom speed changed
+settings done
+Loading resource: res://assets/sfx/music/menu_loop.ogg
+Loading resource: res://scenes/menu/menu2.tscn
+Loading resource: res://scripts/ui/menu/buttons/Quit.gd
+Loading resource: res://prefabs/menu/credits.tscn
+Loading resource: res://assets/images/branding/logo.png
+Loading resource: res://scripts/ui/menu/buttons/ContentMgrAddMap.gd
+Loading resource: res://scripts/ui/menu/buttons/PlaySong.gd
+Loading resource: res://scripts/ui/settings/MusicVolumeSetter.gd
+Loading resource: res://assets/sfx/menu_full.mp3
+Loading resource: res://scripts/ui/menu/Sidebar.gd
+Loading resource: res://scripts/ui/menu/menu2.gd
+Loading resource: res://assets/font/Lato/Lato-Black.ttf
+Loading resource: res://assets/images/tiles.png
+Loading resource: res://scripts/ui/menu/buttons/DifficultySort.gd
+Loading resource: res://scripts/ui/menu/buttons/MapIcon.gd
+Loading resource: res://scripts/ui/menu/buttons/MapIncludeBroken.gd
+Loading resource: res://scripts/ui/menu/buttons/diffSort.gd
+Loading resource: res://scripts/ui/menu/buttons/MapSearch.gd
+Loading resource: res://scripts/ui/menu/buttons/clipinput.gd
+Loading resource: res://scripts/ui/menu/buttons/NameSort.gd
+Loading resource: res://assets/images/ui/arrow_down.png
+Loading resource: res://assets/images/ui/arrow_up.png
+Loading resource: res://assets/images/ui/favorite.png
+Loading resource: res://scripts/ui/menu/SongInfoScreen.gd
+Loading resource: res://scripts/ui/menu/buttons/EndInfo.gd
+Loading resource: res://scripts/ui/menu/buttons/RunMapButton.gd
+Loading resource: res://scripts/ui/menu/buttons/SpeedMod.gd
+Loading resource: res://scripts/ui/menu/buttons/NoFail.gd
+Loading resource: res://scripts/ui/menu/buttons/HardMode.gd
+Loading resource: res://scripts/ui/menu/buttons/EasyMode.gd
+Loading resource: res://scripts/ui/menu/buttons/MirrorX.gd
+Loading resource: res://scripts/ui/menu/buttons/MirrorY.gd
+Loading resource: res://scripts/ui/menu/buttons/Favorite.gd
+Loading resource: res://scripts/ui/menu/buttons/Convert.gd
+Loading resource: res://scripts/ui/menu/buttons/SetDifficulty.gd
+Loading resource: res://scripts/ui/menu/buttons/HpModel.gd
+Loading resource: res://assets/images/transparent.png
+Loading resource: res://scripts/ui/menu/buttons/Nearsight.gd
+Loading resource: res://scripts/ui/menu/buttons/SuddenDeath.gd
+Loading resource: res://scripts/ui/menu/buttons/Ghost.gd
+Loading resource: res://scripts/ui/menu/rainbow.gd
+Loading resource: res://scenes/menu/rhythian.tscn
+Loading resource: res://scripts/ui/menu/RhythianHome.gd
+Loading resource: res://scripts/ui/menu/RhythianUI.gd
+Loading resource: res://scripts/ui/menu/RhythianMenu.gd
+Loading resource: res://scripts/ui/menu/RhythianUI.gd
+Loading resource: res://scripts/ui/menu/RhythianMaps.gd
+Loading resource: res://scripts/ui/menu/buttons/PatreonCredits.gd
+Loading resource: res://prefabs/menu/settings_page.tscn
+Loading resource: res://assets/images/ui/reset_to_default.png
+Loading resource: res://scripts/ui/settings/UserDir.gd
+Loading resource: res://scripts/ui/settings/NoteHitboxSize.gd
+Loading resource: res://scripts/ui/settings/VolumeSetting.gd
+Loading resource: res://scripts/ui/settings/HitEffect.gd
+Loading resource: res://scripts/ui/settings/CursorSpin.gd
+Loading resource: res://scripts/ui/settings/WorldSel.gd
+Loading resource: res://scripts/ui/settings/EdgeBuffer.gd
+Loading resource: res://assets/images/ui/placeholder_dark.jpg
+Loading resource: res://scripts/ui/settings/ReplayDir.gd
+Loading resource: res://assets/images/cursors/circle.png
+Loading resource: res://scripts/ui/settings/NoteMesh.gd
+Loading resource: res://scripts/ui/settings/CursorScale.gd
+Loading resource: res://scripts/ui/settings/Profiles.gd
+Loading resource: res://scripts/ui/settings/CameraPresets.gd
+Loading resource: res://scripts/ui/settings/SaveSettings.gd
+Loading resource: res://scripts/ui/settings/HitWindow.gd
+Loading resource: res://scripts/ui/settings/Sensitivity.gd
+Loading resource: res://scripts/ui/settings/VSync.gd
+Loading resource: res://scripts/ui/settings/ApproachRate.gd
+Loading resource: res://scripts/ui/settings/MusicOffset.gd
+Loading resource: res://scripts/ui/settings/Fullscreen.gd
+Loading resource: res://scripts/ui/settings/Parallax.gd
+Loading resource: res://scripts/ui/settings/ColorSet.gd
+Loading resource: res://scripts/ui/settings/SpawnDist.gd
+Loading resource: res://scripts/ui/settings/Glow.gd
+Loading resource: res://scripts/ui/settings/UIParallax.gd
+Loading resource: res://scripts/ui/settings/GridParallax.gd
+Loading resource: res://scripts/ui/settings/MissEffect.gd
+Loading resource: res://scripts/ui/settings/ArchiveConvert.gd
+Loading resource: res://scripts/ui/settings/FadeLength.gd
+Loading resource: res://assets/images/ui/placeholder.jpg
+Loading resource: res://scripts/ui/settings/fov.gd
+Loading resource: res://scripts/ui/settings/Bloom.gd
+Loading resource: res://scripts/ui/settings/UpdateCheck.gd
+Loading resource: res://assets/images/branding/sspicon.png
+Loading resource: res://scripts/ui/settings/NoteScale.gd
+Loading resource: res://scripts/ui/settings/ReplaceCustomFile.gd
+Loading resource: res://scripts/ui/settings/HitFOVAmplifier.gd
+Loading resource: res://scripts/ui/settings/HitFOVDecay.gd
+Loading resource: res://scripts/ui/settings/SettingsNumberBox.gd
+Loading resource: res://scripts/ui/settings/SettingsColorPicker.gd
+Loading resource: res://scripts/ui/settings/TrailTime.gd
+Loading resource: res://scripts/ui/settings/TrailDetail.gd
+Loading resource: res://scripts/ui/settings/SettingsCheckbox.gd
+Loading resource: res://scripts/ui/settings/ToAvEditor.gd
+Loading resource: res://scripts/ui/settings/ColorPresets.gd
+Loading resource: res://scripts/ui/settings/HitFOVModes.gd
+Loading resource: res://scripts/ui/settings/EnumDropdownMenu.gd
+Loading resource: res://scripts/ui/settings/ReloadContent.gd
+Loading resource: res://scripts/ui/settings/TargetFPS.gd
+Loading resource: res://scripts/ui/settings/NoteSpin.gd
+Loading resource: res://scripts/ui/settings/CursorTrailType.gd
+Loading resource: res://scripts/ui/settings/NoteOpacity.gd
+Loading resource: res://scripts/ui/settings/ReplayIntro.gd
+Loading resource: res://scripts/ui/settings/LockMouseResize.gd
+Loading resource: res://scripts/ui/settings/RenderScale.gd
+Loading resource: res://scripts/ui/settings/ReplayLimit.gd
+Loading resource: res://scripts/ui/settings/ReplayMode.gd
+Loading resource: res://assets/images/ui/play_circle.png
+Loading resource: res://assets/images/ui/home.png
+Loading resource: res://assets/images/ui/settings.png
+Loading resource: res://assets/images/ui/add_icon.png
+Loading resource: res://assets/images/ui/old_menu.png
+Loading resource: res://assets/images/ui/quit_to_desktop.png
+Loading resource: res://scripts/ui/menu/buttons/ExportTxt.gd
+Loading resource: res://scripts/ui/menu/StartOffset.gd
+Loading resource: res://scripts/ui/menu/buttons/ModChaos.gd
+Loading resource: res://scripts/ui/menu/GradeSystem.gd
+Loading resource: res://scripts/ui/menu/buttons/VisualMode.gd
+Loading resource: res://assets/sfx/beep.wav
+Loading resource: res://scripts/ui/menu/DownloadScreen.gd
+Loading resource: res://assets/images/ui/cloud_32.png
+Loading resource: res://assets/images/modifiers/128/speed_mmm_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_mm_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_mmm_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_p_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_pppp_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_ppp_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_ppp_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_m_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_pp_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_p_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_m_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_pppp_colored.png
+Loading resource: res://assets/images/modifiers/128/speed_mm_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_pp_dark.png
+Loading resource: res://assets/images/modifiers/128/speed_mm.png
+Loading resource: res://assets/images/modifiers/128/speed_pppp.png
+Loading resource: res://assets/images/modifiers/128/speed_mmm.png
+Loading resource: res://assets/images/modifiers/128/speed_p.png
+Loading resource: res://assets/images/modifiers/128/speed_ppp.png
+Loading resource: res://assets/images/modifiers/128/speed_m.png
+Loading resource: res://assets/images/modifiers/128/speed_pp.png
+Loading resource: res://scripts/ui/menu/buttons/MapActions.gd
+Loading resource: res://assets/images/ui/settings_dark.png
+Loading resource: res://scripts/ui/menu/AuthorSearch.gd
+Loading resource: res://scripts/ui/menu/SearchOnline.gd
+Loading resource: res://scripts/ui/menu/ResultsHolder.gd
+Loading resource: res://scripts/ui/menu/buttons/ModEarthquake.gd
+Loading resource: res://scripts/ui/menu/WarningBar.gd
+Loading resource: res://scripts/ui/menu/buttons/ModFlashlight.gd
+Loading resource: res://scripts/ui/settings/InvertMouse.gd
+Loading resource: res://scripts/ui/menu/MenuMouse.gd
+Loading resource: res://scripts/ui/settings/CustomSpeed.gd
+Loading resource: res://scripts/ui/menu/buttons/ModHardRock.gd
+Loading resource: res://assets/images/ui/localization.png
+Loading resource: res://scenes/menu/contentmgr.tscn
+Loading resource: res://assets/images/ui/text_file.png
+Loading resource: res://assets/images/ui/humor_funny.png
+Loading resource: res://assets/images/ui/application-software.png
+Loading resource: res://scripts/ui/cmgr/AddSong.gd
+Loading resource: res://scripts/ui/cmgr/contentmgr.gd
+Loading resource: res://assets/images/branding/icon.svg
+Loading resource: res://scenes/menu/language.tscn
+Loading resource: res://scripts/ui/menu/languagemenu.gd
+Loading resource: res://scripts/ui/cmgr/CMgrExit.gd
+Loading resource: res://scripts/ui/menu/buttons/v3MapList.gd
+size_x: 685
+-- start recurse --
+[user://]
+recursed too deep! stopping!
+-- end recurse - took 2,453 usec --
+11
+EXITCODE=-1 
