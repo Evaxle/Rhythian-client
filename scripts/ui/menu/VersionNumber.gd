@@ -1,4 +1,4 @@
 extends Label
 
 func _ready():
-	text = "Rhythians [aug28-2026build]"
+	text = "Rhythians [aug28-2026beta]"

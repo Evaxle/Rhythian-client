@@ -23,6 +23,7 @@ var check_maps_button:Button
 var ladder_current:Label
 var ladder_bar:ProgressBar
 var ladder_next:Label
+var ladder_scroll:ScrollContainer
 
 func _ready():
 	var bg = ColorRect.new()
@@ -112,17 +113,22 @@ func _build_rank_ladder():
 	root_vbox.add_child(panel)
 	v.add_child(RhythianUI.label("Rank ladder", 18, RhythianUI.C_WHITE, 1))
 	var grid = GridContainer.new()
-	grid.columns = Rhythian.RANKS.size()
+	grid.columns = Rhythian.RANKS.size() * Rhythian.RANK_TIERS
 	grid.add_constant_override("hseparation", 8)
 	grid.add_constant_override("vseparation", 8)
-	for tier in range(1, Rhythian.RANK_TIERS + 1):
-		for idx in range(Rhythian.RANKS.size()):
-			if idx == Rhythian.RANKS.size() - 1 and tier != 3:
-				continue
+	for idx in range(Rhythian.RANKS.size()):
+		var tier_count = 1 if idx == Rhythian.RANKS.size() - 1 else Rhythian.RANK_TIERS
+		for tier in range(1, tier_count + 1):
 			var cell = _rank_cell(idx, tier)
 			grid.add_child(cell)
 			rank_cells["%d-%d" % [idx, tier]] = cell
-	v.add_child(grid)
+	ladder_scroll = ScrollContainer.new()
+	ladder_scroll.scroll_horizontal_enabled = true
+	ladder_scroll.scroll_vertical_enabled = false
+	ladder_scroll.rect_min_size = Vector2(0, 52)
+	ladder_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ladder_scroll.add_child(grid)
+	v.add_child(ladder_scroll)
 	var row = RhythianUI.hbox(12)
 	ladder_current = RhythianUI.label("", 15, RhythianUI.C_WHITE, 1)
 	row.add_child(ladder_current)
@@ -307,7 +313,7 @@ func refresh_rank_ladder():
 	var rhp = int(Rhythian.profile.get("rhp", 0))
 	if Rhythian.profile.size() == 0: rhp = 0
 	var info = Rhythian.get_rank_info(rhp)
-	var current_key = "%d-%d" % [info.index, (3 if info.get("isExpert", false) else info.tier)]
+	var current_key = "%d-%d" % [info.index, (1 if info.get("isExpert", false) else info.tier)]
 	for key in rank_cells.keys():
 		var cell = rank_cells[key]
 		var sb = cell.get_stylebox("panel").duplicate()
@@ -320,6 +326,7 @@ func refresh_rank_ladder():
 		sb.border_color = info.color
 		sb.set_border_width_all(2)
 		cell.add_stylebox_override("panel", sb)
+		_center_scroll_on(cell)
 	if ladder_current == null or ladder_bar == null or ladder_next == null:
 		return
 	var cur_label = "%s %d" % [str(info.get("name","")), int(info.get("tier",1))]
@@ -343,6 +350,14 @@ func refresh_rank_ladder():
 		else:
 			next_name = "%s %d" % [str(info.get("name","")), int(info.get("tier",1)) + 1]
 		ladder_next.text = "%s in %d RHP" % [next_name, remain]
+
+func _center_scroll_on(cell:PanelContainer):
+	yield(get_tree(), "idle_frame")
+	yield(get_tree(), "idle_frame")
+	if ladder_scroll == null or not is_instance_valid(cell):
+		return
+	var target = cell.rect_position.x + cell.rect_size.x * 0.5 - ladder_scroll.rect_size.x * 0.5
+	ladder_scroll.scroll_horizontal = int(clamp(target, 0, max(ladder_scroll.get_h_scrollbar().max_value, 0)))
 
 func _on_login_pressed():
 	Rhythian.start_login()
