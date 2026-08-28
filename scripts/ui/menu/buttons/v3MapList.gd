@@ -27,6 +27,7 @@ var hard:Array = []
 var logic:Array = []
 var amogus:Array = []
 var unknown:Array = []
+var rhythian:Array = []
 
 var disp:Array = []
 
@@ -197,16 +198,19 @@ func load_pg(select_cur:bool=false):
 
 func append_filtering_favorites(to:Array,from:Array):
 	for s in from:
-		if !is_fav(s) and search_matches(s):
+		if !is_fav(s) and search_matches(s) and not Rhythian.is_rhythian_song(s):
 			to.append(s)
 
 
 func build_list():
 	disp = []
 	favorite = []
+	for s in rhythian:
+		if search_matches(s):
+			disp.append(s)
 	for id in Rhythia.favorite_songs:
 		var s = Rhythia.registry_song.get_item(id)
-		if s and Rhythia.is_favorite(id) and search_matches(s):
+		if s and Rhythia.is_favorite(id) and search_matches(s) and not Rhythian.is_rhythian_song(s):
 			favorite.append(s)
 	favorite.sort_custom(self,"sortsong")
 	disp.append_array(favorite)
@@ -298,6 +302,10 @@ func reset_filters():
 func prepare_songs():
 	for i in range(songs.size()):
 		var map:Song = songs[i]
+		if Rhythian.is_rhythian_song(map):
+			if rhythian.find(map) == -1:
+				rhythian.append(map)
+			continue
 		var add_to:Array
 		match map.difficulty:
 			Globals.DIFF_EASY: add_to = easy
@@ -308,6 +316,7 @@ func prepare_songs():
 			_: add_to = unknown
 		if add_to.find(map) == -1:
 			add_to.append(map)
+	rhythian.sort_custom(self,"sortsongsimple")
 	easy.sort_custom(self,"sortsongsimple")
 	medium.sort_custom(self,"sortsongsimple")
 	hard.sort_custom(self,"sortsongsimple")

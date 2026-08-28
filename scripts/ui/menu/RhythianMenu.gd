@@ -20,6 +20,9 @@ var login_code:String = ""
 var login_url:String = ""
 var checking_all:bool = false
 var check_maps_button:Button
+var ladder_current:Label
+var ladder_bar:ProgressBar
+var ladder_next:Label
 
 func _ready():
 	var bg = ColorRect.new()
@@ -112,14 +115,26 @@ func _build_rank_ladder():
 	grid.columns = Rhythian.RANKS.size()
 	grid.add_constant_override("hseparation", 8)
 	grid.add_constant_override("vseparation", 8)
-	for tier in range(Rhythian.RANK_TIERS, 0, -1):
-		for idx in range(Rhythian.RANKS.size() - 1, -1, -1):
+	for tier in range(1, Rhythian.RANK_TIERS + 1):
+		for idx in range(Rhythian.RANKS.size()):
 			if idx == Rhythian.RANKS.size() - 1 and tier != 3:
 				continue
 			var cell = _rank_cell(idx, tier)
 			grid.add_child(cell)
 			rank_cells["%d-%d" % [idx, tier]] = cell
 	v.add_child(grid)
+	var row = RhythianUI.hbox(12)
+	ladder_current = RhythianUI.label("", 15, RhythianUI.C_WHITE, 1)
+	row.add_child(ladder_current)
+	ladder_bar = RhythianUI.progress_bar(RhythianUI.C_ACCENT, 8)
+	ladder_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ladder_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(ladder_bar)
+	ladder_next = RhythianUI.label("", 13, RhythianUI.C_MUTED)
+	ladder_next.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(ladder_next)
+	v.add_child(row)
+	refresh_rank_ladder()
 
 func _rank_cell(idx:int, tier:int) -> PanelContainer:
 	var min_rhp = int(Rhythian.RANKS[idx].minRhp)
@@ -287,11 +302,12 @@ func _render_rank_block(parent:VBoxContainer):
 		parent.add_child(RhythianUI.label(next_txt, 12, RhythianUI.C_MUTED))
 
 func refresh_rank_ladder():
-	if rank_cells.size() == 0: return
+	if rank_cells.size() == 0:
+		return
 	var rhp = int(Rhythian.profile.get("rhp", 0))
 	if Rhythian.profile.size() == 0: rhp = 0
 	var info = Rhythian.get_rank_info(rhp)
-	var current_key = "%d-%d" % [info.index, (Rhythian.RANK_TIERS if info.get("isExpert", false) else info.tier)]
+	var current_key = "%d-%d" % [info.index, (3 if info.get("isExpert", false) else info.tier)]
 	for key in rank_cells.keys():
 		var cell = rank_cells[key]
 		var sb = cell.get_stylebox("panel").duplicate()
@@ -304,6 +320,29 @@ func refresh_rank_ladder():
 		sb.border_color = info.color
 		sb.set_border_width_all(2)
 		cell.add_stylebox_override("panel", sb)
+	if ladder_current == null or ladder_bar == null or ladder_next == null:
+		return
+	var cur_label = "%s %d" % [str(info.get("name","")), int(info.get("tier",1))]
+	if info.get("isExpert", false):
+		cur_label = "Expert"
+	ladder_current.text = cur_label
+	var fg = StyleBoxFlat.new()
+	fg.bg_color = info.get("color", RhythianUI.C_ACCENT)
+	fg.set_corner_radius_all(8)
+	ladder_bar.add_stylebox_override("fg", fg)
+	if info.get("isExpert", false):
+		ladder_bar.value = 100.0
+		ladder_next.text = "Max rank reached"
+	else:
+		ladder_bar.value = float(info.get("progressToNextTier", 0.0)) * 100.0
+		var remain = max(int(info.get("nextTierStart", 0)) - rhp, 0)
+		var next_name = ""
+		if int(info.get("tier", 1)) >= Rhythian.RANK_TIERS:
+			var ni = min(int(info.get("index", 0)) + 1, Rhythian.RANKS.size() - 1)
+			next_name = "%s 1" % str(Rhythian.RANKS[ni].name)
+		else:
+			next_name = "%s %d" % [str(info.get("name","")), int(info.get("tier",1)) + 1]
+		ladder_next.text = "%s in %d RHP" % [next_name, remain]
 
 func _on_login_pressed():
 	Rhythian.start_login()
