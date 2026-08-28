@@ -1,10 +1,7 @@
 extends Control
 
-# Root of the Rhythian page: tab bar between "Overview" (connection,
-# account, rank ladder, scores) and "Maps" (ranked map browser).
-
-var tab_buttons:Dictionary = {} # "overview"/"maps" -> Button
-var pages:Dictionary = {}       # "overview"/"maps" -> Control
+var tab_buttons:Dictionary = {}
+var pages:Dictionary = {}
 var current:String = "overview"
 
 func _ready():
@@ -12,8 +9,6 @@ func _ready():
 	bg.color = RhythianUI.C_BG
 	bg.set_anchors_preset(Control.PRESET_WIDE)
 	add_child(bg)
-	# The Overview/Maps pages are children of this node (from the scene), so
-	# the background must be moved behind them or it hides their content.
 	move_child(bg, 0)
 
 	var bar = RhythianUI.hbox(8)

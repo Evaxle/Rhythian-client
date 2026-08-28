@@ -1,9 +1,6 @@
 extends Reference
 class_name RhythianUI
 
-# Static helpers that recreate the Rhythians website look
-# (tailwind.config.ts colors) inside the Godot client.
-
 const C_BG = Color("070a12")
 const C_SURFACE = Color("101629")
 const C_MUTED = Color("8d99b5")
@@ -25,6 +22,30 @@ static func font(size:int = 15, weight:int = 0, spacing:int = 0) -> DynamicFont:
 	f.size = size
 	f.extra_spacing_char = spacing
 	return f
+
+static func load_texture(path:String) -> Texture:
+	if ResourceLoader.exists(path):
+		var t = load(path)
+		if t != null and t is Texture:
+			return t
+	var img = Image.new()
+	var err = img.load(path)
+	if err != OK:
+		return null
+	var tex = ImageTexture.new()
+	tex.create_from_image(img)
+	return tex
+
+static func icon(path:String, size:float) -> TextureRect:
+	var tr = TextureRect.new()
+	var tex = load_texture(path)
+	tr.texture = tex
+	tr.rect_min_size = Vector2(size, size)
+	tr.expand = true
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return tr
 
 static func label(text:String, size:int = 16, color:Color = C_WHITE, weight:int = 0, align:int = Label.ALIGN_LEFT) -> Label:
 	var l = Label.new()
@@ -152,7 +173,7 @@ static func rank_pill(rank:Dictionary, size:String = "md") -> PanelContainer:
 	var name = str(rank.get("name",""))
 	if not rank.get("isExpert", false):
 		name += " " + str(rank.get("tier", 1))
-	if rank.get("isExpert", false) and rank.has("globalRank") and rank["globalRank"] != null and rank["globalRank"] != "":
+	if rank.get("isExpert", false) and rank.has("globalRank") and rank["globalRank"] != null:
 		name += " #" + str(rank["globalRank"])
 	var l = label(name, 12 if size == "sm" else (16 if size == "lg" else 14), color, 1)
 	pc.add_child(l)
@@ -164,7 +185,7 @@ static func progress_bar(fg:Color, height:int = 8) -> ProgressBar:
 	pb.min_value = 0.0
 	pb.max_value = 100.0
 	pb.value = 0.0
-	pb.show_percentage = false
+	pb.percent_visible = false
 	var bg = StyleBoxFlat.new()
 	bg.bg_color = Color(1, 1, 1, 0.06)
 	bg.set_corner_radius_all(height)

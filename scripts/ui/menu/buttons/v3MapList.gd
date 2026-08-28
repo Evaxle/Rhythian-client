@@ -47,6 +47,8 @@ var momentum:float = 0
 
 var size_x:int = 0
 
+const RHYTHIAN_ICON = preload("res://assets/images/branding/icon.png")
+
 func next_index():
 	return cur_map + int(floor(((page_size + 1)/2) * 1.2))
 
@@ -69,7 +71,7 @@ var has_been_pressed = false
 func play_song():
 	if !Rhythia.selected_song: return
 	if has_been_pressed: return
-	emit_signal("lock_type") # prevent input to line edits (MapSearch and AuthorSearch)
+	emit_signal("lock_type")
 	has_been_pressed = true
 	get_viewport().get_node("Menu").black_fade_target = true
 	yield(get_tree().create_timer(0.35),"timeout")
@@ -90,7 +92,6 @@ func on_pressed(i):
 	else:
 		print(pt)
 		if pt < 0.25:
-			# make sure all the things are stopped
 			check_drag = false
 			dragged = false
 			scrolling_to = false
@@ -98,11 +99,11 @@ func on_pressed(i):
 			play_song()
 	pt = 0
 	get_viewport().get_node("Menu/Main/Maps/Results").visible = true
-	
+
 func switch_to_play_screen():
 	size_list()
 	if Rhythia.menu_target == "res://scenes/menu/menu.tscn": return
-	if disp.find(Rhythia.registry_song.get_item(Rhythia.selected_song.id)) == -1: #if the selected song is not in the list, reset filters to show it
+	if disp.find(Rhythia.registry_song.get_item(Rhythia.selected_song.id)) == -1:
 		reset_filters()
 	get_viewport().get_node("Menu/Sidebar").press(0,true)
 	cur_map = disp.find(Rhythia.registry_song.get_item(Rhythia.selected_song.id))
@@ -129,7 +130,6 @@ func _process(delta):
 		handle_window_resize()
 
 func _physics_process(delta):
-	# when the mouse is released from drag, the list will scroll based on the momentum
 	if momentum != 0:
 		momentum = lerp(momentum, 0, 0.3)
 		if abs(momentum) < 0.3:
@@ -166,13 +166,13 @@ func check_drag_on():
 func check_drag_off():
 	check_drag = false
 	dragged = false
-	momentum = (drag_offset - get_global_mouse_position()).y 
+	momentum = (drag_offset - get_global_mouse_position()).y
 
 func select_random():
 	if disp.size() == 0: return
 	cur_map = randi()%disp.size()
 	load_pg(true)
-	
+
 
 func load_pg(select_cur:bool=false):
 	size_list()
@@ -183,7 +183,6 @@ func load_pg(select_cur:bool=false):
 	page_size = ((get_parent().rect_size.y)/90) * 1.5
 	if page_size % 2 != 0:
 		page_size += 1
-	#page size isnt accurate, its a ballpark
 	cur_map = clamp(cur_map, 0, disp.size() - 1)
 	for i in range(prev_index(), next_index() + 1):
 		var btn:Panel = make_song_button(i)
@@ -290,10 +289,9 @@ func sortsong(a:Song, b:Song):
 
 func reset_filters():
 	print("resetting filters")
-	emit_signal("reset_filters") # updates line edits (MapSearch and AuthorSearch)
+	emit_signal("reset_filters")
 	update_search_dfil([Globals.DIFF_UNKNOWN,Globals.DIFF_EASY,Globals.DIFF_MEDIUM,Globals.DIFF_HARD,Globals.DIFF_LOGIC,Globals.DIFF_AMOGUS])
 	update_search_showbroken(false)
-#	update_search_showonline(true) # main purpose of this is to show maps you have downloaded already, and this creates a little inconsistent behavior
 	update_search_flipped(false)
 	update_search_flip_name(false)
 
@@ -308,7 +306,6 @@ func prepare_songs():
 			Globals.DIFF_LOGIC: add_to = logic
 			Globals.DIFF_AMOGUS: add_to = amogus
 			_: add_to = unknown
-		#if map not in add_to
 		if add_to.find(map) == -1:
 			add_to.append(map)
 	easy.sort_custom(self,"sortsongsimple")
@@ -351,13 +348,30 @@ func make_song_button(id:int=-1):
 	btn.get_node("Cloud").visible = map.is_online
 	rbtn.disabled = false
 	rbtn.connect("pressed",self,"on_pressed",[id])
-	#set the pressed action mode to release so it doesn't trigger on mouse down
 	rbtn.action_mode = 1
 	rbtn.connect("button_down", self, "check_drag_on")
 	rbtn.connect("button_up", self, "check_drag_off")
 	rbtn.keep_pressed_outside = true
 	if map == Rhythia.selected_song:
 		btn.get_node("Select").pressed = true
+	if Rhythian.is_rhythian_song(map):
+		var ic = TextureRect.new()
+		ic.name = "RhythianIcon"
+		ic.texture = RHYTHIAN_ICON
+		ic.rect_min_size = Vector2(38, 38)
+		ic.expand = true
+		ic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		ic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ic.anchor_left = 1.0
+		ic.anchor_right = 1.0
+		ic.anchor_top = 0.0
+		ic.anchor_bottom = 1.0
+		ic.margin_left = -54
+		ic.margin_right = -12
+		ic.margin_top = 10
+		ic.margin_bottom = -10
+		ic.grow_vertical = Control.GROW_DIRECTION_BOTH
+		btn.add_child(ic)
 	return btn
 
 func pg_up():
@@ -366,25 +380,25 @@ func pg_up():
 
 	$Press.play()
 	var out:Panel = btns.pop_back()
-	tween_out(out) # freed in tween
+	tween_out(out)
 
 	var btn:Panel = make_song_button(prev_index())
-	btns.insert(0,btn) # BEFORE
-	add_child(btn) 
-	move_child(btn, 0) # to top
+	btns.insert(0,btn)
+	add_child(btn)
+	move_child(btn, 0)
 	btn.visible = true
 	tween_in(btn)
-	
+
 func pg_down():
 	if cur_map >= disp.size() - 1: return
 	cur_map += 1
-	
+
 	$Press.play()
 	var out:Panel = btns.pop_front()
-	tween_out(out) # freed in tween
+	tween_out(out)
 	var btn:Panel = make_song_button(next_index())
-	btns.append(btn) # AFTER
-	add_child(btn) # at end
+	btns.append(btn)
+	add_child(btn)
 	btn.visible = true
 	tween_in(btn)
 
@@ -401,7 +415,7 @@ func tween_length():
 	for i in btns.size():
 		var tween = get_tree().create_tween()
 		tween.tween_property(btns[i], "rect_min_size", Vector2(size_x-(15*(abs((next_index() - prev_index())/2-i))), 90), 0.15)
-	
+
 
 func _input(ev:InputEvent):
 	if is_visible_in_tree() and ev is InputEventMouseButton and ev.is_pressed():
@@ -412,29 +426,27 @@ func _input(ev:InputEvent):
 			scrolling_to = false
 			call_deferred("pg_down")
 	if ev is InputEventKey and ev.is_pressed():
-		#if f2 is pressed, it will select a random map
 		if ev.scancode == KEY_F2:
 			print("F2")
 			select_random()
-		
+
 
 func handle_window_resize():
-#	get_tree().reload_current_scene()
 	if ready: size_list()
 
 func firstload():
-#	if the button is held down, it will keep scrolling
 	get_parent().get_parent().get_parent().get_node("ScrollControl/P").connect("button_down",self,"pg_down_cont")
 	get_parent().get_parent().get_parent().get_node("ScrollControl/M").connect("button_down",self,"pg_up_cont")
 	get_parent().get_parent().get_parent().get_node("ScrollControl/P").connect("button_up",self,"pg_down_stop")
 	get_parent().get_parent().get_parent().get_node("ScrollControl/M").connect("button_up",self,"pg_up_stop")
-	
+
 	get_parent().get_parent().get_node("T/Random").connect("pressed",self,"select_random")
 	prepare_songs()
 	reload_to_current_page()
 	ready = true
 	Rhythia.connect("favorite_songs_changed",self,"reload_to_current_page")
 	Rhythia.connect("download_done",self,"update_clouds")
+	Rhythian.connect("map_downloaded",self,"_on_rhythian_map_downloaded")
 	get_viewport().connect("size_changed",self,"handle_window_resize")
 	Rhythia.emit_signal("map_list_ready")
 
@@ -443,10 +455,14 @@ func update_clouds():
 		if btn.has_node("Cloud") and btn.song:
 			btn.get_node("Cloud").visible = btn.song.is_online
 
+func _on_rhythian_map_downloaded(_mid, _success, _msg):
+	if ready:
+		reload_to_current_page()
+
 func pg_up_cont():
 	scrolling_to = false
 	scroll_up = true
-	
+
 func pg_up_stop():
 	scroll_up = false
 
@@ -463,7 +479,7 @@ func scroll_to(i:int):
 	scrolling_to = true
 
 func _ready():
-	thread = Thread.new() # Load Covers
+	thread = Thread.new()
 	thread.start(self, "_load_covers")
 
 	randomize()
@@ -480,9 +496,8 @@ func _ready():
 
 	Engine.iterations_per_second = 60
 	call_deferred("firstload")
-	#tryna get the screen size but uh it no change
 	size_list()
-	
+
 	print("size_x: ", size_x)
 
 func _exit_tree():
@@ -497,20 +512,10 @@ func _load_covers():
 	for i in range(allmaps.size()):
 		allmaps[i]._get_cover()
 
-func strip_diacritics(s:String): # we hardcoding tonight   -  edit nvm im literally a genius
-#	var diacritics = "[̴̧̳̦̜̱͖̲̺͊͜1̷̨̛̝̼̓͒8̶̳̘̥̰̌̋̎͛̐͛̄̾ͅ6̶̡̛̦̻̭̅͝0̷̼̤͓̹͚͇͐͒́͗̿̍͋̕͜ ̸̦̥̻͈̳̥̲͖̆̀̽̋͘Ḇ̴̢̲̞̰͉̬͙̮̗͒̿̉͛͊P̸̩͉̻͓̱͕͖͉͕̉͌̈̅̃̈͑̚͜͝M̶̡̜͕̺̞͔̾̉ ̵̠̈È̸̛̤̖͍̈̓̏̒̆̋͘x̸̨̛͉̀͛͑͑́t̸̲̹̖̺̥̪̙͗̒̓̆̀͒͒̚r̷̲̩̦̓̔̓̑̀̿́̕͝ã̷̢̢̤̹̹̝̓͌̃͂t̸̲͉͊̀o̸͉͈̿̿̌͋̋n̶̗̺̩̱̠͚͌͛̈́͂̃̀̚͠͝ȩ̷̠̻͕̠̫̗͖̹̊]̶͖̙̳̳̲̪̌̆̄̈͊͛͘͜͜͜͝ ̸̧̩͕̲́̇̃̑A̶̱̖͔̪̦̮̐̉̀͗͊̚͝w̶̢͕̬̪̞̲͚͕̫̠̎̀̾̌̓̊̚͝͠â̵͇̮͖̜̱͙̗k̸̢̛̥̩͈̤̩͍̱͍͇̆̆̀̎̓͐̊̕ȩ̵̦̙̠̬̔̍́̚s̴̡̬̦̈́̈̄͌̃͠y̶̙͒͐̉̆̔ ̸̙̦̲̃͆̇́́͂͠C̵̨̖̻̯̪͎̀̊̄̏͛͗͝h̵̨̦̫̖͇̮̥̿͊̎̂͝r̴̖̙̤͖̤̻̝̬̗̓̄̓̆̇̈́̇̄͠ḭ̷̧̧͙̲͈̬̦̮̈́̀͗͌̕ͅs̴̯̿t̸̡̡͈̰̮͎̺͌̏ͅḿ̸̢̛̼̼͖̗ã̵̢̢̬͜s̶̡̙̼̥̣̺̻̭̱̈̈́̆̒̒̈́͠ͅ ̷̧̗͌́̐̌̽̅͠B̴̨̡̢̟͕̦̹͉̺̔ͅë̷̻̞͎̬͎̗͋̀͐́̅l̷̛̠̪͕͖̊̾l̶̹̤͊͊s̷̛͉͛͌̐͘̚̚͘ ̷͕̯̲̟̦̥͍̞͑̾̀͆͛͑̂͊͐R̵̮̮͖̥̜̠̖̥̲͇̋́i̵̟͚̭̣̙̫̙̘͍͛̍͝ͅņ̷̩͉̮̭͙̌͆g̵̨̡̹̗̗͍̟̟̩̓̾̂̍̆ ̴̺̥̙͉͉̾̉̽f̴͓̏̿̅̋͛̓̓o̴͈̎̀͒̏̚͠͝r̷̡̬͉͇̞̉̈̀ ̶̡̛̘̭̩͓̟̊̆̓̓̏̇͝͝H̴̢͓̫̰́̈̋E̶̛̛̥̬̯̺͊̏̽̀L̵̟̮̞̫̟͗̑̀͂̽͑̔̐̉̕L̷̛̹̼͎̰͗̾̆͋̊́̆͆"
-#	if s.is_subsequence_ofi(diacritics):
-#		return "[1860] BPM Extratone Awakesy Christmas Bells Ring for HELL"
-#	return s
-# ^^ this map is the only reason im doing this ^^
-#	this removes all COMBINING UTF8 values to prevent spammed diactritics also known as zalgo text since it lags the maplist
-#	i found those values at https://www.utf8-chartable.de/unicode-utf8-table.pl?number=1024&utf8=0x -  starts at U+0300 ends at U+036F
-#	print(s)
+func strip_diacritics(s:String):
 	var pool:PoolByteArray = s.to_utf8()
-#	print(pool)
 	var output_bytes: Array = []
-	
-	# List of UTF-8 byte values to remove
+
 	var byte_values_to_remove = [
 		0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86,
 		0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d,
@@ -527,8 +532,7 @@ func strip_diacritics(s:String): # we hardcoding tonight   -  edit nvm im litera
 		0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a,
 		0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1
 	]
-	
-#	var prev_byte: int = -1
+
 	var removed:bool = false
 	for i in range(pool.size() - 1, -1, -1):
 		if removed:
@@ -538,13 +542,12 @@ func strip_diacritics(s:String): # we hardcoding tonight   -  edit nvm im litera
 		var prev_byte = -1
 		if i != 0:
 			prev_byte = pool[i - 1]
-		
+
 		if byte_value in byte_values_to_remove:
-			# If the current byte his preceded by 0xcc or 0xcd, remove it and previous byte
 			if prev_byte == 0xcc or prev_byte == 0xcd:
 				removed = true
 				continue
 		output_bytes.insert(0, byte_value)
-	
+
 	return PoolByteArray(output_bytes).get_string_from_utf8()
-	
+

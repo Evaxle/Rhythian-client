@@ -114,29 +114,32 @@ Loading resource: res://assets/worlds/tri_tunnel/cover.png
 (re)load custom colorsets
 -- start recurse --
 [user://colorsets]
--- end recurse - took 852 usec --
-set 1 took 382 usec
-set 2 took 310 usec
-set 3 took 285 usec
-set 4 took 2,340 usec
-set 5 took 366 usec
-set 6 took 244 usec
-set 7 took 231 usec
-colorsets took 5,578 usec
+-- end recurse - took 970 usec --
+set 1 took 340 usec
+set 2 took 267 usec
+set 3 took 258 usec
+set 4 took 2,225 usec
+set 5 took 538 usec
+set 6 took 361 usec
+set 7 took 293 usec
+colorsets took 5,979 usec
 loaded ssp_content DLC
 loaded ssp_testcontent DLC
 -- start recurse --
 [user://maps]
--- end recurse - took 34,443 usec --
-Loaded 429/429 maps from cache of 430
-Took 13,037 usec
+-- end recurse - took 33,551 usec --
+C:/Users/esc10/AppData/Roaming/SoundSpacePlus/maps/rhythian maps/rhythians-1baf4399-dafa-42a4-92e8-f2749aa6f018-sound_souler__gloom_after_death.sspm: File is not a valid .sspm (or header is borked)
+C:/Users/esc10/AppData/Roaming/SoundSpacePlus/maps/rhythian maps/rhythians-31dde378-58e5-48b5-ad18-283a68282df1-ushio_kensuke__lit.sspm: File is not a valid .sspm (or header is borked)
+C:/Users/esc10/AppData/Roaming/SoundSpacePlus/maps/rhythian maps/rhythians-eb9393c7-4b7a-4821-897a-7a002b73c684-undead_corporation__sunny_miracle_no_benigiri_ihen.sspm: File is not a valid .sspm (or header is borked)
+Loaded 431/434 maps from cache of 432
+Took 13,518 usec
 res://assets/songs/built_in_maps.sspmr
 6
 res://test_assets/test_maps.sspmr
 1
 -- start recurse --
 [user://vmaps]
--- end recurse - took 2,659 usec --
+-- end recurse - took 2,326 usec --
 Cache hit!
 Loading resource: res://assets/sfx/miss.wav
 Loading resource: res://assets/sfx/hit.wav
@@ -188,7 +191,6 @@ Loading resource: res://scenes/menu/rhythian.tscn
 Loading resource: res://scripts/ui/menu/RhythianHome.gd
 Loading resource: res://scripts/ui/menu/RhythianUI.gd
 Loading resource: res://scripts/ui/menu/RhythianMenu.gd
-Loading resource: res://scripts/ui/menu/RhythianUI.gd
 Loading resource: res://scripts/ui/menu/RhythianMaps.gd
 Loading resource: res://scripts/ui/menu/buttons/PatreonCredits.gd
 Loading resource: res://prefabs/menu/settings_page.tscn
@@ -314,6 +316,5 @@ size_x: 685
 -- start recurse --
 [user://]
 recursed too deep! stopping!
--- end recurse - took 2,453 usec --
+-- end recurse - took 2,136 usec --
 11
-EXITCODE=-1 

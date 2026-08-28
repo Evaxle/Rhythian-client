@@ -1,8 +1,5 @@
 extends Control
 
-# Rhythian menu page - website-styled hub with connection status,
-# account login (device flow), rank ladder, and score checking.
-
 var root_vbox:VBoxContainer
 
 var website_dot:Control
@@ -13,7 +10,7 @@ var database_label:Label
 var account_panel:VBoxContainer
 var account_inner:VBoxContainer
 
-var rank_cells:Dictionary = {} # "%d-%d" % [idx, tier] -> PanelContainer
+var rank_cells:Dictionary = {}
 
 var scores_list:VBoxContainer
 var scores_status:Label
@@ -21,6 +18,8 @@ var scores_status:Label
 var login_timer:Timer
 var login_code:String = ""
 var login_url:String = ""
+var checking_all:bool = false
+var check_maps_button:Button
 
 func _ready():
 	var bg = ColorRect.new()
@@ -115,6 +114,8 @@ func _build_rank_ladder():
 	grid.add_constant_override("vseparation", 8)
 	for tier in range(Rhythian.RANK_TIERS, 0, -1):
 		for idx in range(Rhythian.RANKS.size() - 1, -1, -1):
+			if idx == Rhythian.RANKS.size() - 1 and tier != 3:
+				continue
 			var cell = _rank_cell(idx, tier)
 			grid.add_child(cell)
 			rank_cells["%d-%d" % [idx, tier]] = cell
@@ -130,19 +131,16 @@ func _rank_cell(idx:int, tier:int) -> PanelContainer:
 	var h = RhythianUI.hbox(6)
 	var icon_path = Rhythian.get_rank_icon_path(idx, tier)
 	if not ResourceLoader.exists(icon_path):
-		# Rank icons are not shipped yet - fall back to the game icon so the
-		# ladder still reads clearly instead of showing empty/placeholder art.
 		icon_path = "res://assets/images/branding/icon.png"
-	if ResourceLoader.exists(icon_path):
-		var tex = load(icon_path)
-		if tex != null:
-			var tr = TextureRect.new()
-			tr.texture = tex
-			tr.rect_min_size = Vector2(20, 20)
-			tr.expand = true
-			tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			tr.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			h.add_child(tr)
+	var tex = RhythianUI.load_texture(icon_path)
+	if tex != null:
+		var tr = TextureRect.new()
+		tr.texture = tex
+		tr.rect_min_size = Vector2(20, 20)
+		tr.expand = true
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(tr)
 	h.add_child(RhythianUI.label(txt, 12, color, 1))
 	pc.add_child(h)
 	return pc
@@ -170,12 +168,11 @@ func _build_scores():
 	v.add_child(scores_list)
 	scores_status = RhythianUI.label("Loading...", 14, RhythianUI.C_MUTED)
 	v.add_child(scores_status)
-# ---- account ----
 
 func _rebuild_account():
 	if account_inner == null: return
 	for c in account_inner.get_children():
-		c.free()
+		c.queue_free()
 	if login_code != "":
 		_show_auth_state()
 		return
@@ -210,12 +207,44 @@ func _add_check_maps_button():
 	b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	b.connect("pressed", self, "_on_check_all_maps")
 	account_inner.add_child(b)
+	check_maps_button = b
 
 func _on_check_all_maps():
+	if not Rhythian.logged_in:
+		Globals.notify(Globals.NOTIFY_WARN, "Sign in to check your Rhythian maps", "Rhythians")
+		return
+	if checking_all:
+		return
+	checking_all = true
+	if check_maps_button != null:
+		check_maps_button.text = "Checking..."
+		check_maps_button.disabled = true
+	var result = yield(Rhythian.check_all_maps(), "completed")
+	checking_all = false
+	if check_maps_button != null and is_instance_valid(check_maps_button):
+		check_maps_button.text = "Check all maps"
+		check_maps_button.disabled = false
+	if typeof(result) == TYPE_DICTIONARY and result.has("error"):
+		Globals.notify(Globals.NOTIFY_WARN, str(result["error"]), "Rhythians")
+		return
+	if typeof(result) == TYPE_DICTIONARY and result.has("newlyCompleted"):
+		var newly = int(result.get("newlyCompleted", 0))
+		var already = int(result.get("alreadyCompleted", 0))
+		var pts = int(result.get("totalPoints", 0))
+		if newly > 0:
+			Globals.notify(Globals.NOTIFY_SUCCEED, "Checked your maps - %d newly completed, %d already earned. +%d RHP awarded!" % [newly, already, pts], "Rhythians")
+		else:
+			Globals.notify(Globals.NOTIFY_INFO, "Checked your maps - %d already completed. No new RHP to award." % already, "Rhythians")
+		return
 	Rhythian.fetch_maps()
-	var home = get_parent()
-	if home != null and home.has_method("show_maps"):
-		home.show_maps()
+	Rhythian.fetch_scores()
+	Rhythian.fetch_profile()
+	var s = Rhythian.rhythian_stats
+	var total = int(s.get("total", 0))
+	if total > 0:
+		Globals.notify(Globals.NOTIFY_SUCCEED, "Checked %d ranked maps - %d completed for %d RHP." % [total, int(s.get("completed", 0)), int(s.get("rhp", 0))], "Rhythians")
+	else:
+		Globals.notify(Globals.NOTIFY_WARN, "The Rhythians server doesn't support map checking yet (HTTP 404). Refreshed your progress instead.", "Rhythians")
 
 func _render_rank_block(parent:VBoxContainer):
 	var rhp = int(Rhythian.profile.get("rhp", 0))
@@ -224,6 +253,10 @@ func _render_rank_block(parent:VBoxContainer):
 		return
 	var rank = Rhythian.get_rank_info(rhp)
 	rank["globalRank"] = Rhythian.profile.get("globalRank", null)
+	var icon_path = Rhythian.get_rank_icon_path(rank.index, rank.tier if not rank.get("isExpert", false) else 1)
+	var user_icon = RhythianUI.icon(icon_path, 34)
+	if user_icon.texture != null:
+		parent.add_child(user_icon)
 	var top = RhythianUI.hbox(16)
 	top.add_child(RhythianUI.rank_pill(rank, "lg"))
 	top.add_child(RhythianUI.spacer())
@@ -271,7 +304,6 @@ func refresh_rank_ladder():
 		sb.border_color = info.color
 		sb.set_border_width_all(2)
 		cell.add_stylebox_override("panel", sb)
-# ---- login flow ----
 
 func _on_login_pressed():
 	Rhythian.start_login()
@@ -290,7 +322,7 @@ func _on_login_started(user_code, verification_url):
 
 func _show_auth_state():
 	for c in account_inner.get_children():
-		c.free()
+		c.queue_free()
 	account_inner.add_child(RhythianUI.label("Authorize this game on the Rhythians website:", 15, RhythianUI.C_MUTED))
 	var code_label = RhythianUI.label(login_code, 32, RhythianUI.C_ACCENT2, 1)
 	account_inner.add_child(code_label)
@@ -335,8 +367,6 @@ func _open_url(url:String):
 	if url != "":
 		OS.shell_open(url)
 
-# ---- signals ----
-
 func _on_connection_checked(web_ok, db_ok):
 	_set_dot(website_dot, RhythianUI.C_ACCENT2 if web_ok else Color("ef4444"))
 	website_label.text = "Website · Connected" if web_ok else "Website · Unreachable"
@@ -359,7 +389,7 @@ func _open_rhythians():
 
 func _on_scores_updated(success, message):
 	for c in scores_list.get_children():
-		c.free()
+		c.queue_free()
 	if not Rhythian.logged_in:
 		scores_status.text = "Sign in to see your recent scores."
 		return
