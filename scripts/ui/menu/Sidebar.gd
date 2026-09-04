@@ -1,148 +1,81 @@
 extends Panel
 
-var open:bool = false
-var open_amt:float = 1
-
-onready var pages:Array = [
-#	get_node("../Main/Results"),
-	get_node("../Main/Maps"),
-	get_node("../Main/Settings"),
-	get_node("../Main/Credits"),
-	get_node("../Main/Content"),
-	get_node("../Main/Language"),
-	get_node("../Main/Rhythian")
-]
-onready var buttons:Array = [
-	$L/Results,
-#	$L/MapSelect,
-	$L/Settings,
-	$L/Credits,
-	$L/ContentMgr,
-	$L/Language,
-	$L/Rhythian
-]
-var use_ver_b:Array = [
-	false,
-#	false,
-	true,
-	false,
-	false,
-	false,
-	false
-]
-var hide_ver:Array = [
-	false,
-#	false,
-	false,
-	true,
-	false,
-	false,
-	false
-]
-onready var smm_visibility:Dictionary = {
-	$L/Results: true,
-#	$L/MapSelect: true,
-	$L/Settings: true,
-	$L/Credits: true,
-	$L/ContentMgr: true,
-	$L/Language: false,
-	$L/StartVR: false,
-	$L/OldMenu: false,
-	$L/Quit: true,
-	$L/Rhythian: true
-}
-
-func press(bi:int,q:bool=false):
-	if !q: get_node("../Press").play()
-	for i in range(pages.size()):
-		pages[i].visible = i == bi
-		buttons[i].pressed = i == bi
-	yield(get_tree(),"idle_frame")
-
-	get_node("../VersionNumber").visible = !use_ver_b[bi]
-	get_node("../VersionNumberB").visible = use_ver_b[bi]
-	if (hide_ver[bi]):
-		get_node("../VersionNumber").self_modulate = Color(1,1,1,0)
-	else:
-		get_node("../VersionNumber").self_modulate = Color(1,1,1,1)
-#	open = false
-#	get_node("Click").visible = !open
-#	get_node("../SidebarClick").visible = open
-
-func to_old_menu():
-	get_node("../Press").play()
-	get_viewport().get_node("Menu").black_fade_target = true
-	if Input.is_key_pressed(KEY_C):
-		if !Rhythia.selected_song:
-			Globals.notify(Globals.NOTIFY_WARN,"No selected song","Automatically selecting a song")
-			Rhythia.select_song(Rhythia.registry_song.items[0])
-		Rhythia.menu_target = "res://scripts/cursordance/dancetest.tscn"
-	else: Rhythia.menu_target = "res://scenes/menu/menu.tscn"
-	yield(get_tree().create_timer(0.35),"timeout")
-	get_tree().change_scene("res://scenes/loaders/menuload.tscn")
-
-func to_vr():
-	get_node("../Press").play()
-	get_viewport().get_node("Menu").black_fade_target = true
-	yield(get_tree().create_timer(0.35),"timeout")
-	Rhythia.start_vr()
-
-func quit():
-	get_node("../Press").play()
-	get_viewport().get_node("Menu").black_fade_target = true
-	yield(get_tree().create_timer(0.35),"timeout")
-	get_tree().quit()
+const BASE_URL = "https://rhythians-evans-projects-edff1a37.vercel.app"
+var portal:Control
+var account:Button
+var nav = [["home","Home"],["maps","Maps"],["daily","Daily"],["path","Path"],["challenge","Challenge"],["online","Online"],["leaderboards","Leaderboards"],["battles","Battles"],["clips","Clips"],["wiki","Wiki"],["rules","Rules"],["community","Community"]]
 
 func _ready():
-	for i in range(buttons.size()):
-		buttons[i].connect("pressed",self,"press",[i])
+	set_anchors_and_margins_preset(Control.PRESET_TOP_WIDE)
+	anchor_right = 1.0
+	rect_min_size.y = 78
+	z_index = 100
+	for child in get_children(): child.visible = false
+	var background = ColorRect.new()
+	background.color = Color(0.035,0.045,0.07,0.98)
+	background.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(background)
+	var bar = HBoxContainer.new()
+	bar.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+	bar.margin_left = 18
+	bar.margin_right = -18
+	bar.margin_top = 9
+	bar.margin_bottom = -9
+	bar.add_constant_override("separation", 6)
+	add_child(bar)
+	var brand = Label.new()
+	brand.text = "Rhythia · jun15-2026rc"
+	brand.add_color_override("font_color",Color(0.72,0.75,0.82))
+	brand.add_font_size_override("font_size",13)
+	bar.add_child(brand)
+	var center = HBoxContainer.new()
+	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center.alignment = BoxContainer.ALIGN_CENTER
+	center.add_constant_override("separation",4)
+	bar.add_child(center)
+	var play = _button("Play",true)
+	play.rect_min_size = Vector2(88,52)
+	center.add_child(play)
+	play.connect("pressed",self,"to_play")
+	for item in nav:
+		var b = _button(item[1],false)
+		b.rect_min_size.x = 64 if item[1].length() <= 7 else 78
+		center.add_child(b)
+		b.connect("pressed",self,"open_page",[item[0]])
+	account = _button(Rhythian.username if Rhythian.logged_in else "Sign in",false)
+	account.rect_min_size = Vector2(112,44)
+	bar.add_child(account)
+	account.connect("pressed",self,"open_account")
+	portal = load("res://scripts/ui/menu/RhythiansPortal.gd").new()
+	get_parent().add_child(portal)
+	portal.z_index = 50
 
-	press(0,true)
-	$Click.connect("mouse_entered",self,"_on_Sidebar", [true])
-	$L.connect("mouse_entered",self,"_on_Sidebar", [true])
-	connect("mouse_exited",self,"_on_Sidebar", [false])
-	$L/OldMenu.connect("pressed",self,"to_old_menu")
-	$L/StartVR.connect("pressed",self,"to_vr")
-	$L/Quit.connect("pressed",self,"quit")
+func _button(text:String,primary:bool) -> Button:
+	var b = Button.new()
+	b.text = text
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_color_override("font_color",Color(1,1,1,1))
+	b.add_color_override("font_color_hover",Color(1,1,1,1))
+	b.add_font_size_override("font_size",16 if primary else 12)
+	return b
 
-	$L/ContentMgr.visible = not Rhythia.vr
-#	$L/StartVR.visible = Rhythia.vr_available and not Rhythia.vr
-	if Rhythia.vr or !OS.has_feature("pc"):
-		$L/Quit/Label.text = "Quit to Home"
+func _process(_delta:float):
+	if account != null: account.text = Rhythian.username if Rhythian.logged_in else "Sign in"
 
-	if Rhythia.single_map_mode:
-		for n in $L.get_children():
-			n.visible = smm_visibility.get(n,false)
+func open_page(page:String):
+	_hide_game_pages()
+	if portal != null and portal.has_method("open_page"): portal.open_page(page)
 
-func _process(delta:float):
-	if open and not Rect2(get_global_rect()).has_point(get_global_mouse_position()): # mouse_exited is not reliable
-		_on_Sidebar(false)
+func open_account(): open_page("account")
 
-	if open == true and open_amt != 1:
-		open_amt = min(open_amt + max((1 - open_amt) * delta * 14, 0.05*delta),1)
-#		if open_amt > 0.99: open_amt = 1
-	elif open == false and open_amt != 0:
-		open_amt = max(open_amt + min((0 - open_amt) * delta * 12, -0.05*delta),0)
-#		if open_amt < 0.01: open_amt = 0
+func to_play():
+	if portal != null and portal.has_method("close_page"): portal.close_page()
+	_hide_game_pages()
+	var results = get_node_or_null("../Main/Results")
+	if results != null: results.visible = true
 
-	rect_size.x = 60 + (180 * open_amt)
-
-func _input(ev):
-	if (ev is InputEventScreenTouch or ev is InputEventMouseButton):
-		if ev.pressed != true: return
-		open = ev.position.x < rect_size.x and ev.position.y < rect_size.y
-		yield(get_tree(),"idle_frame")
-		get_node("Click").visible = !open
-		get_node("../SidebarClick").visible = open
-
-	if Input.is_action_just_pressed("ui_quicksettings"):
-		press(1)
-
-	if Input.is_action_just_pressed("menu_quickbar"): # uuhhh no, mouse checks won't work with this
-		open = true
-		get_node("Click").visible = !open
-
-func _on_Sidebar(isEntered: bool):
-	open = isEntered
-	get_node("Click").visible = !open
-	get_node("../SidebarClick").visible = open
+func _hide_game_pages():
+	for path in ["../Main/Results","../Main/Maps","../Main/Settings","../Main/Credits","../Main/Content","../Main/Language","../Main/Rhythian"]:
+		var node = get_node_or_null(path)
+		if node != null: node.visible = false
