@@ -1,9 +1,8 @@
 extends Panel
 
-const BASE_URL = "https://rhythians-evans-projects-edff1a37.vercel.app"
 var portal:Control
 var account:Button
-var nav = [["home","Home"],["maps","Maps"],["daily","Daily"],["path","Path"],["challenge","Challenge"],["online","Online"],["leaderboards","Leaderboards"],["battles","Battles"],["clips","Clips"],["wiki","Wiki"],["rules","Rules"],["community","Community"]]
+var nav = [["home","Home"],["maps","Maps"],["daily","Daily"],["path","Path"],["challenge","Challenge"],["online","Online"],["leaderboards","Leaderboards"],["battles","Battles"],["clips","Clips"],["search","Search"],["messages","Messages"],["global-chat","Global Chat"],["wiki","Wiki"],["rules","Rules"],["community","Community"]]
 
 func _ready():
 	set_anchors_and_margins_preset(Control.PRESET_TOP_WIDE)
@@ -16,6 +15,7 @@ func _ready():
 	background.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
+	var scroll = HScrollBar.new()
 	var bar = HBoxContainer.new()
 	bar.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 	bar.margin_left = 18
@@ -25,22 +25,28 @@ func _ready():
 	bar.add_constant_override("separation", 6)
 	add_child(bar)
 	var brand = Label.new()
-	brand.text = "Rhythia · jun15-2026rc"
+	brand.text = "Rhythia · " + str(ProjectSettings.get_setting("application/config/version", "nightly"))
 	brand.add_color_override("font_color",Color(0.72,0.75,0.82))
 	brand.add_font_size_override("font_size",13)
+	brand.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	bar.add_child(brand)
+	var center_scroll = ScrollContainer.new()
+	center_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	center_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	bar.add_child(center_scroll)
 	var center = HBoxContainer.new()
 	center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	center.alignment = BoxContainer.ALIGN_CENTER
 	center.add_constant_override("separation",4)
-	bar.add_child(center)
+	center_scroll.add_child(center)
 	var play = _button("Play",true)
 	play.rect_min_size = Vector2(88,52)
 	center.add_child(play)
 	play.connect("pressed",self,"to_play")
 	for item in nav:
 		var b = _button(item[1],false)
-		b.rect_min_size.x = 64 if item[1].length() <= 7 else 78
+		b.rect_min_size.x = 70 if item[1].length() <= 8 else 88
 		center.add_child(b)
 		b.connect("pressed",self,"open_page",[item[0]])
 	account = _button(Rhythian.username if Rhythian.logged_in else "Sign in",false)

@@ -1,0 +1,1 @@
+The Rhythians portal is native and reads live data through /api/rhythkit/portal. Battles and lobbies use the Rhythians bearer-authenticated APIs. Global chat is shared by authenticated Rhythians.
